@@ -1,3 +1,3 @@
 export const environment = {
-    apiUrl: 'http://production.com/api/v1'
+    apiUrl: 'https://3.146.146.7/api/v1'
 };

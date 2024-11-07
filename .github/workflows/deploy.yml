@@ -1,0 +1,32 @@
+name: Deploy to Firebase
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+      
+      - name: Install dependencies
+        run: npm install
+        working-directory: Angular/estramipyme
+      
+      - name: Build the project
+        run: npm run build
+        working-directory: Angular/estramipyme
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESTRAMIPYIMES }}
+          channelId: live
+          projectId: estramipyme-62756
+          entryPoint: Angular/estramipyme
