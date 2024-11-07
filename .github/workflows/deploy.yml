@@ -29,5 +29,5 @@ jobs:
           repoToken: ${{ secrets.TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESTRAMIPYIMES }}
           channelId: live
-          projectId: estramipyimes
+          projectId: estramipyme-62756
           entryPoint: Angular/estramipyme
