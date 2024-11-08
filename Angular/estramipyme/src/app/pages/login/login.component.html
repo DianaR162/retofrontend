@@ -1,48 +1,43 @@
-<!--<header>-->
-<!--  <div class="header-container">-->
-<!--    <img-->
-<!--      src="assets/images/logo_eafit.png"-->
-<!--      alt="EAFIT logo"-->
-<!--      class="nav__logo"-->
-<!--      id="logo"-->
-<!--    />-->
-<!--    <div class="header-titles">-->
-<!--      <div class="heading-primary">ESTRAMIPYME</div>-->
-<!--      <div class="heading-secondary">Planeación Estratégica</div>-->
-<!--    </div>-->
-<!--    <nav class="navigation">-->
-<!--      <a routerLink="/landing">Inicio</a>-->
-<!--      <a routerLink="/login">Iniciar sesión</a>-->
-<!--      <a routerLink="/register">Registrarse</a>-->
-<!--    </nav>-->
-<!--  </div>-->
-<!--</header>-->
 
 <div class="container">
   <h2 class="heading-form">Iniciar Sesión</h2>
   <form id="login-form" (ngSubmit)="onSubmit(login)" #login="ngForm">
+    <!-- Campo de correo electrónico -->
     <label for="login-email">Correo Electrónico:</label>
     <input type="email" id="login-email" name="email" ngModel required/>
 
+    <!-- Campo de contraseña -->
     <label for="login-password">Contraseña:</label>
     <input type="password" id="login-password" name="password" ngModel required/>
 
+    <!-- Recordarme -->
     <label>
       <input type="checkbox" id="remember-me" name="rememberMe" ngModel/>
       Recordarme
     </label>
 
+    <!-- Botón de iniciar sesión -->
     <button type="submit" id="loginButton" class="btn-register">
       Iniciar Sesión
     </button>
 
+    <!-- Mensaje de error -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Enlace para olvidó la contraseña -->
     <p>
       <a href="#" id="forgot-password">¿Has olvidado la contraseña?</a>
     </p>
+
+    <!-- Enlace para registro -->
     <p>
       ¿Aún no tienes cuenta?
       <a href="registro" id="show-register">Crea una aquí</a>
     </p>
+
+    <!-- Botón de regresar -->
     <button type="button" id="go-back" (click)="navigateTo('')">Regresar</button>
   </form>
 </div>
