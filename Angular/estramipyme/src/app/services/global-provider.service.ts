@@ -1,6 +1,7 @@
 import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {DataProcService} from '@services/data-proc.service';
 import {BehaviorSubject} from 'rxjs';
+import { RetobackendService } from './retobackend.service';
 
 type Answer =
   | {}
@@ -51,44 +52,8 @@ export class GlobalProviderService {
     return this.getScores();
   });
 
-  constructor() {
-    this.dataProc.getItems('http://localhost:3000/questions').subscribe({
-      next: (questions) => {
-        this.numberOfQuestions = questions.length; //Obtener los ids
-        this.cliente = questions
-          .filter((e) => e.section === 'cliente')
-          .map((q) => String(q.id));
-        this.negocio = questions
-          .filter((e) => e.section === 'negocio')
-          .map((q) => String(q.id));
-        this.coherencia = questions
-          .filter((e) => e.section === 'coherencia')
-          .map((q) => String(q.id));
-        this.alineacion = questions
-          .filter((e) => e.section === 'alineacion')
-          .map((q) => String(q.id));
-        this.financiera = questions
-          .filter((e) => e.section === 'financiera')
-          .map((q) => String(q.id));
-        this.circuloQue = questions
-          .filter((e) => e.section === 'circulo' && e.subsection === 'que')
-          .map((q) => String(q.id));
-        this.circuloComo = questions
-          .filter((e) => e.section === 'circulo' && e.subsection === 'como')
-          .map((q) => String(q.id));
-        this.circuloPorQue = questions
-          .filter((e) => e.section === 'circulo' && e.subsection === 'por que')
-          .map((q) => String(q.id));
-
-        console.log(this.circuloComo);
-        console.log('circuloComo');
-        //console.log(this.answers())
-        //console.log("ruuun")
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+  constructor(private retobackendService: RetobackendService) {
+    this.setLogging(Boolean(sessionStorage.getItem('TOKEN')))
   }
 
   setLocalStorage(id: number | string, value: string) {

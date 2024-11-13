@@ -1,15 +1,15 @@
-import {Component, ElementRef, inject, OnInit, signal} from '@angular/core';
+import {Component, ElementRef, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {RouterOutlet} from '@angular/router';
+import {Router, RouterOutlet} from '@angular/router';
 import {GraphsComponent} from './components/graphs/graphs.component';
 
-import {Question} from '@models/question.model';
 import {RenderFormDirective} from './directives/render-form.directive';
 import {FooterComponent} from './pages/components/footer/footer.component';
 import {GlobalProviderService} from '@services/global-provider.service';
 import {GraphCircleComponent} from './components/graph-circle/graph-circle.component';
 import {LoginComponent} from './pages/login/login.component';
 import {RegisterComponent} from './pages/register/register.component';
+import { IQuestion, RetobackendService } from '@services/retobackend.service';
 
 type Answers =
   | {}
@@ -47,13 +47,21 @@ export class AppComponent implements OnInit {
   #allSections: HTMLHtmlElement | any;
   #progress: HTMLHtmlElement | any;
   #navLinks: HTMLHtmlElement | any;
+  questions: IQuestion[] = [];
 
   // private provider = inject(GlobalProviderService)
   globalProvider!: GlobalProviderService;
 
-  constructor(el: ElementRef, globalProvider: GlobalProviderService) {
+  constructor(el: ElementRef, globalProvider: GlobalProviderService, private retobackendService: RetobackendService,
+    private router: Router
+  ) {
     this.el = el;
     this.globalProvider = globalProvider;
+  }
+
+  logOut() {
+    sessionStorage.removeItem('TOKEN')
+    this.isLoged.set(false)
   }
 
   toggleLogin() {
@@ -64,7 +72,21 @@ export class AppComponent implements OnInit {
     this.mobileOpen.update((prevValue) => !prevValue);
   }
 
+  callGetAllQuestions() {
+    this.retobackendService.getAllQuestions().subscribe({
+      next: (response) => {
+        console.log(response)
+        this.questions = response?.data || []
+      },
+      error: (err) => {
+        console.error(err)
+      },
+    })
+  }
+
   ngOnInit() {
+    this.callGetAllQuestions();
+
     this.globalProvider.IsLogged$.subscribe((value) => {
       console.log('is logged in provider');
       this.isLoged.set(value);

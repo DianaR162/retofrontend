@@ -7,11 +7,14 @@ body {
   background-color: #f3f3f3;
 }
 
-/* Header */
 header {
   background-color: #ffffff;
   padding: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+  color: red;
 }
 
 .header-container {
@@ -65,7 +68,6 @@ header {
   color: #46c69f;
 }
 
-/* Estilos específicos para el login */
 #login-section {
   display: flex;
   justify-content: center;
