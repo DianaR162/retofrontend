@@ -3,6 +3,9 @@ import {Router} from "@angular/router";
 import {DataProcService} from "@services/data-proc.service";
 import {FormsModule, NgForm} from "@angular/forms";
 import {RegisterDataModel} from "@models/registerdata.models";
+import { IUserRequestDto, RetobackendService } from '@services/retobackend.service';
+import { registerDataToUserRequestDto } from '../../mapper/user.mapper';
+import { IResponseDto } from '@models/responseDto.model';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +23,7 @@ export class RegisterComponent {
   router!: Router;
   dataproc!: DataProcService;
 
-  constructor(router: Router, dataproc: DataProcService) {
+  constructor(router: Router, dataproc: DataProcService, private retobackendServices: RetobackendService) {
     this.router = router;
     this.dataproc = dataproc;
   }
@@ -54,29 +57,23 @@ export class RegisterComponent {
     console.log("valores del form")
     console.log(form.value)
     if (!form.valid) return;
-    const url = "http://localhost:3000/users"
+    
     const values = form.value as RegisterDataModel
     if (values.password !== values.confirmPassword) {
       this.passwordDoNotMatch.set(true);
       return;
     }
-    // if (
-    //   this._checkBusinessName(values.businessName) ||
-    //   this._checkId(values.docNumber) ||
-    //   this._checkSurname(values.surname) ||
-    //   this._checkName(values.name)
-    // ) return;
-    this.dataproc.sendData(url, values).subscribe({
+    const userToRegister: IUserRequestDto = registerDataToUserRequestDto(values);
 
-      next: response => {
-
-        console.log('Data posted successfully', response)
-        console.log(form)
-        this.navigateTo('')
+    this.retobackendServices.userRegister(userToRegister).subscribe({
+      next: (response: IResponseDto<boolean>) => {
+        if (response.data) {
+          this.router.navigate(['/login'])
+        }
       },
-      error: err => {
-        console.error(err)
+      error: (error) => {
+        console.error(error);
       }
-    })
+    });
   }
 }
