@@ -49,7 +49,7 @@ export class LoginComponent {
           sessionStorage.setItem('TOKEN', token)
           this.errorMessage = null;
           this.globalProvider.setLogging(true);
-          this.navigateTo("");
+          window.location.href = '/';
         } else {
           this.errorMessage = 'Ocurrió un error inesperado.';
         }

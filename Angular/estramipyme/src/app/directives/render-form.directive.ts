@@ -2,6 +2,7 @@ import {Directive, inject, ElementRef, signal, Input} from '@angular/core';
 import {DataProcService} from "@services/data-proc.service";
 import {Question} from "@models/question.model";
 import {GlobalProviderService} from "@services/global-provider.service";
+import { IOption, IQuestion, RetobackendService } from '@services/retobackend.service';
 
 @Directive({
   selector: '[appRenderForm]',
@@ -9,24 +10,17 @@ import {GlobalProviderService} from "@services/global-provider.service";
 })
 export class RenderFormDirective {
   element = inject(ElementRef)
-  questions = signal<Question[]>([])
-  @Input({required: true}) url!: string;
-
-  private dataProc = inject(DataProcService)
-  private form!: HTMLFormElement | undefined;
+  @Input({required: true}) section!: string;
+  @Input({required: true}) questions!: IQuestion[];
   private provider!: GlobalProviderService;
 
-  constructor(provider: GlobalProviderService) {
+  constructor(provider: GlobalProviderService, private retobackendService: RetobackendService) {
     this.provider = provider
   }
 
   ngOnInit() {
-    //const url = "http://localhost:3000/questions"
-    this.dataProc.getItems(this.url).subscribe({
-      next: questions => {
-        this.questions.set(questions)
-        //const clientData = questions.filter((e: Question) => e.section === "cliente");
-        this._createForm(questions, 1);
+        const questionsBySection = this.questions.filter(q => this.section === q.section)
+        this._createForm(questionsBySection, 1);
         this._getLocalStorage();
 
         this.element.nativeElement.querySelector('.form--1').addEventListener('input', (e: Event) => {
@@ -35,13 +29,6 @@ export class RenderFormDirective {
           if (question) this.provider.setLocalStorage(question.dataset["questionId"]!, target.value);
           //this.#progress.style.width = `${this.provider.getProgress()}%`;
         })
-
-
-      },
-      error: err => {
-        console.log(err)
-      }
-    })
     //this._getLocalStorage()
 
     this.provider.Progress$.subscribe(progress => {
@@ -49,17 +36,17 @@ export class RenderFormDirective {
     })
   }
 
-  _createForm(data: Question[], id: String | number) {
+  _createForm(data: IQuestion[], id: String | number) {
     const form = this._createFormElement(data, id);
     const formContainer = this.element.nativeElement as HTMLElement;
     formContainer.append(form);
     return form;
   }
 
-  _createFormElement(data: Question[], id: String | number) {
+  _createFormElement(data: IQuestion[], id: String | number) {
     const formElement = document.createElement("form");
     formElement.classList.add(`form--${id}`);
-    data.forEach((q: Question) => {
+    data.forEach((q: IQuestion) => {
       const fieldset = document.createElement("fieldset");
       fieldset.classList.add("questions");
       fieldset.classList.add(`question--${q.id}`);
@@ -69,7 +56,7 @@ export class RenderFormDirective {
 
       fieldset.append(legend);
       formElement.append(fieldset);
-      q.options.forEach((op: String, index: any) => {
+      q.options.forEach((op: IOption, index: any) => {
         const label = document.createElement("label");
         const input = document.createElement("input");
         input.setAttribute("type", "radio");
@@ -81,7 +68,7 @@ export class RenderFormDirective {
           index + 1
         } class="radioinput radioinput__section--${id}" data-id="${q.id}-${
           index + 1
-        }">${op}
+        }">${op.text}
       `;
         // label.insertAdjacentHTML('afterend', op);
 
