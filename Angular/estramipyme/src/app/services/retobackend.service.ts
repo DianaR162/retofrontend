@@ -20,6 +20,15 @@ export interface IUserRequestDto {
   passwordConfirm: string
 }
 
+export interface IUserResponseDto extends IUserRequestDto {
+  token: string
+}
+
+export interface IUserAuthenticationDto {
+  mail: string,
+  password: string
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -29,5 +38,9 @@ export class RetobackendService {
 
   userRegister(payload: IUserRequestDto): Observable<IResponseDto<boolean>> {
     return this.http.post<IResponseDto<boolean>>(environment.apiUrl + USER_REGISTER_URL, payload);
+  }
+
+  userLogin(payload: IUserAuthenticationDto): Observable<IResponseDto<IUserResponseDto>> {
+    return this.http.post<IResponseDto<IUserResponseDto>>(environment.apiUrl + USER_REGISTER_URL + '/login', payload);
   }
 }
