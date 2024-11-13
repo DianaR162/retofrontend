@@ -32,6 +32,10 @@ export class RegisterComponent {
     this.router.navigate([path])
   }
 
+  ngAfterContentInit() {
+    if (sessionStorage.getItem('TOKEN')) this.navigateTo("")
+  }
+
   _checkName(value: string) {
     this.invalidName.set(true)
     return value.trim().length > 0;
