@@ -52,6 +52,8 @@ export class GlobalProviderService {
   });
 
   constructor() {
+    this.setLogging(Boolean(sessionStorage.getItem('TOKEN')))
+
     this.dataProc.getItems('http://localhost:3000/questions').subscribe({
       next: (questions) => {
         this.numberOfQuestions = questions.length; //Obtener los ids

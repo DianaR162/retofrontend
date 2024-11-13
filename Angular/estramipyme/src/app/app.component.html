@@ -3,13 +3,20 @@
 </div>
 <header class="header">
   <!--  <button (click)="toggleLogin()">login</button>-->
-  <div class="login">
+  <div class="login" [ngStyle]="{ display: isLoged() ? 'none' : 'block' }">
     <ul>
       <li>
         <a href="login" class="login">Login</a>
       </li>
       <li>
         <a href="registro" class="login">Registro</a>
+      </li>
+    </ul>
+  </div>
+  <div class="login" [ngStyle]="{ display: isLoged() ? 'block' : 'none' }">
+    <ul>
+      <li>
+        <a href="#!" (click)="logOut()" class="login">Cerrar sesión</a>
       </li>
     </ul>
   </div>

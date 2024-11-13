@@ -62,6 +62,11 @@ export class AppComponent implements OnInit {
     this.globalProvider = globalProvider;
   }
 
+  logOut() {
+    sessionStorage.removeItem('TOKEN')
+    this.isLoged.set(false)
+  }
+
   toggleLogin() {
     this.isLoged.update((prevValue) => !prevValue);
   }

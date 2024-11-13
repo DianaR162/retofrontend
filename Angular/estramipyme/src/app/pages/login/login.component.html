@@ -1,22 +1,3 @@
-<!--<header>-->
-<!--  <div class="header-container">-->
-<!--    <img-->
-<!--      src="assets/images/logo_eafit.png"-->
-<!--      alt="EAFIT logo"-->
-<!--      class="nav__logo"-->
-<!--      id="logo"-->
-<!--    />-->
-<!--    <div class="header-titles">-->
-<!--      <div class="heading-primary">ESTRAMIPYME</div>-->
-<!--      <div class="heading-secondary">Planeación Estratégica</div>-->
-<!--    </div>-->
-<!--    <nav class="navigation">-->
-<!--      <a routerLink="/landing">Inicio</a>-->
-<!--      <a routerLink="/login">Iniciar sesión</a>-->
-<!--      <a routerLink="/register">Registrarse</a>-->
-<!--    </nav>-->
-<!--  </div>-->
-<!--</header>-->
 
 <div class="container">
   <h2 class="heading-form">Iniciar Sesión</h2>
@@ -36,13 +17,19 @@
       Iniciar Sesión
     </button>
 
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
     <p>
       <a href="#" id="forgot-password">¿Has olvidado la contraseña?</a>
     </p>
+
     <p>
       ¿Aún no tienes cuenta?
       <a href="registro" id="show-register">Crea una aquí</a>
     </p>
+
     <button type="button" id="go-back" (click)="navigateTo('')">Regresar</button>
   </form>
 </div>
