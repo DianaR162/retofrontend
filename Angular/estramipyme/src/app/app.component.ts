@@ -1,11 +1,7 @@
 import {Component, ElementRef, inject, OnInit, signal} from '@angular/core';
-import { FormularioComponent } from './components/formulario/formulario.component';
-import { QuestionFormComponent } from './components/question-form/question-form.component';
-
 import {CommonModule} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import {GraphsComponent} from './components/graphs/graphs.component';
-
 
 import {Question} from '@models/question.model';
 import {RenderFormDirective} from './directives/render-form.directive';
@@ -33,8 +29,6 @@ type Answers =
     GraphCircleComponent,
     LoginComponent,
     RegisterComponent,
-    FormularioComponent,
-    QuestionFormComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
