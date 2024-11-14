@@ -26,16 +26,12 @@ export class GraphCircleComponent {
 
   ngOnInit() {
     this.globalProvider.CircleData$.subscribe((value: Circle) => {
-      console.log('valores el circulo');
-      console.log(value);
       if (this.circleEl) this.renderCicle(value);
     });
   }
 
   renderCicle(value: Circle) {
     this.chart = echarts.init(this.circleEl.nativeElement);
-    console.log('native element');
-    console.log(this.circleEl.nativeElement);
 
     const option = {
       tooltip: {
