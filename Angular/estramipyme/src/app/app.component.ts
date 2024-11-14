@@ -9,7 +9,7 @@ import {GlobalProviderService} from '@services/global-provider.service';
 import {GraphCircleComponent} from './components/graph-circle/graph-circle.component';
 import {LoginComponent} from './pages/login/login.component';
 import {RegisterComponent} from './pages/register/register.component';
-import { IQuestion, RetobackendService } from '@services/retobackend.service';
+import { IAnswerRequestDto, RetobackendService } from '@services/retobackend.service';
 
 type Answers =
   | {}
@@ -47,7 +47,6 @@ export class AppComponent implements OnInit {
   #allSections: HTMLHtmlElement | any;
   #progress: HTMLHtmlElement | any;
   #navLinks: HTMLHtmlElement | any;
-  questions: IQuestion[] = [];
 
   // private provider = inject(GlobalProviderService)
   globalProvider!: GlobalProviderService;
@@ -72,23 +71,8 @@ export class AppComponent implements OnInit {
     this.mobileOpen.update((prevValue) => !prevValue);
   }
 
-  callGetAllQuestions() {
-    this.retobackendService.getAllQuestions().subscribe({
-      next: (response) => {
-        console.log(response)
-        this.questions = response?.data || []
-      },
-      error: (err) => {
-        console.error(err)
-      },
-    })
-  }
-
   ngOnInit() {
-    this.callGetAllQuestions();
-
     this.globalProvider.IsLogged$.subscribe((value) => {
-      console.log('is logged in provider');
       this.isLoged.set(value);
     });
 
@@ -96,7 +80,6 @@ export class AppComponent implements OnInit {
       this.progress.set(value);
     });
     //const startTest = document.querySelector(".start-test");
-    console.log('elemento nava');
     this.#navLinks = this.el.nativeElement.querySelector('.nav__links');
     this.#nav = this.el.nativeElement.querySelector('.nav');
     this.#navHeight = this.#nav.getBoundingClientRect().height;
@@ -144,25 +127,8 @@ export class AppComponent implements OnInit {
     headerObserver.observe(this.#header);
 
     this._setupResultsButton();
-    // this._setupBorrarButton();
     this._setupResultsButton();
-    // this._setupBorrarButton();
   }
-
-  // _setupBorrarButton() {
-  //   const borrarBtn = this.el.nativeElement.querySelector('#borrarBtn');
-  //   if (!borrarBtn) {
-  //     console.error('Botón "Borrar Respuestas" no encontrado.');
-  //     return;
-  //   }
-
-  //   borrarBtn.addEventListener('click', () => {
-  //     console.log('reset');
-  //     this.resetForm();
-  //     window.location.hash = '#section--1';
-  //     window.location.reload();
-  //   });
-  // }
 
   resetForm(): void {
     this.globalProvider.reset()
@@ -172,7 +138,6 @@ export class AppComponent implements OnInit {
     entries: IntersectionObserverEntry[],
     observer: IntersectionObserver
   ) {
-    console.log('reveal section');
     const [entry] = entries;
     if (!entry.isIntersecting) return;
     this.el.nativeElement
@@ -204,13 +169,10 @@ export class AppComponent implements OnInit {
   }
 
   _handlerStartTest(e: MouseEvent) {
-    console.log('event targe');
     const target = e.target as unknown as HTMLElement;
     e.preventDefault();
 
     const id: String | null = target.getAttribute('href');
-    //console.log(id);
-    // console.log(id)
     this.el.nativeElement
       .querySelector(id)
       .scrollIntoView({behavior: 'smooth'});
@@ -267,7 +229,7 @@ export class AppComponent implements OnInit {
         fieldset.classList.remove('fieldset-error');
       });
 
-      if (Object.entries(this.globalProvider.answers()).length < this.globalProvider.numberOfQuestions) {
+      if (Object.entries(this.globalProvider.answers()).length < this.globalProvider.numberOfQuestions()) {
         const answerIds = Object.keys(this.globalProvider.answers());
 
         // const unansweredElements = Array.from(
@@ -285,13 +247,12 @@ export class AppComponent implements OnInit {
           }
         });
 
-        const questionsKeys = Array.from({length: this.globalProvider.numberOfQuestions}, (_, i) => String(i + 1));
-
+        const questionsKeys = Array.from({length: this.globalProvider.numberOfQuestions()}, (_, i) => String(i + 1));
 
         const queue = questionsKeys.filter(element => !answerIds.includes(element));
 
         const currentTarget: HTMLHtmlElement = this.el.nativeElement.querySelector(`.form-container fieldset[data-question-id="${queue[0]}"]`)
-        currentTarget.scrollIntoView({
+        currentTarget && currentTarget.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
         })
@@ -308,7 +269,32 @@ export class AppComponent implements OnInit {
         //   });
         // }
       } else {
-        console.log('Todas las preguntas han sido respondidas.');
+        const inputs: HTMLInputElement[] = Array.from(document.querySelectorAll('.radioinput')) as HTMLInputElement[];
+        const answersToSave: IAnswerRequestDto[] = []
+
+        inputs.forEach(input => {
+          if (input.checked) {
+            const idQuestion = Number(input.dataset['question']);
+            const idOption = Number(input.dataset['value']);
+
+            if (idQuestion && idOption) {
+              answersToSave.push({
+                idQuestion,
+                idOption,
+              })
+            }
+          }
+        });
+
+        this.retobackendService.saveAnswers(answersToSave).subscribe({
+          next: () => {
+            console.log('GUARDADO CON ÉXITO.');
+          },
+          error: (err) => {
+            console.error(err);
+          }
+        })
+        
         const radarSection =
           this.el.nativeElement.querySelector('.section-radar');
         if (radarSection) {

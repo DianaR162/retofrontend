@@ -58,8 +58,6 @@ export class RegisterComponent {
 
 
   onSubmit(form: NgForm) {
-    console.log("valores del form")
-    console.log(form.value)
     if (!form.valid) return;
     
     const values = form.value as RegisterDataModel
