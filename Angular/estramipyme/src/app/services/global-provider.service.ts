@@ -52,8 +52,35 @@ export class GlobalProviderService {
     this.setLogging(Boolean(sessionStorage.getItem('TOKEN')))
 
     this.retobackendService.getAllQuestions().subscribe({
-      next: ({ data }) => {
-        this.numberOfQuestions.update(() => data?.length || 51)
+      next: ({ data: questions }) => {
+        this.numberOfQuestions.update(() => questions?.length || 51)
+
+        if (!questions) return;
+
+        this.cliente = questions
+          .filter((e) => e.section === 'cliente')
+          .map((q) => String(q.id));
+        this.negocio = questions
+          .filter((e) => e.section === 'negocio')
+          .map((q) => String(q.id));
+        this.coherencia = questions
+          .filter((e) => e.section === 'coherencia')
+          .map((q) => String(q.id));
+        this.alineacion = questions
+          .filter((e) => e.section === 'alineacion')
+          .map((q) => String(q.id));
+        this.financiera = questions
+          .filter((e) => e.section === 'financiera')
+          .map((q) => String(q.id));
+        this.circuloQue = questions
+          .filter((e) => e.section === 'circulo' && e.subsection === 'que')
+          .map((q) => String(q.id));
+        this.circuloComo = questions
+          .filter((e) => e.section === 'circulo' && e.subsection === 'como')
+          .map((q) => String(q.id));
+        this.circuloPorQue = questions
+          .filter((e) => e.section === 'circulo' && e.subsection === 'por que')
+          .map((q) => String(q.id));
       },
       error: (error) => {
         console.error(error)
