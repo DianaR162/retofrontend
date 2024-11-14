@@ -27,8 +27,6 @@ export class GraphsComponent {
 
   ngOnInit() {
     this.globalProvider.RadarData$.subscribe((value) => {
-      console.log('nuevo valor');
-      console.log(value);
       if (this.radarEl) {
         if (this.radarChart) {
           this.radarChart.destroy();

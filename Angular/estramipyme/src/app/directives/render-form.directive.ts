@@ -10,8 +10,8 @@ import { IOption, IQuestion, RetobackendService } from '@services/retobackend.se
 })
 export class RenderFormDirective {
   element = inject(ElementRef)
+  questions = signal<IQuestion[]>([]);
   @Input({required: true}) section!: string;
-  @Input({required: true}) questions!: IQuestion[];
   private provider!: GlobalProviderService;
 
   constructor(provider: GlobalProviderService, private retobackendService: RetobackendService) {
@@ -19,17 +19,32 @@ export class RenderFormDirective {
   }
 
   ngOnInit() {
-        const questionsBySection = this.questions.filter(q => this.section === q.section)
-        this._createForm(questionsBySection, 1);
-        this._getLocalStorage();
+        this.retobackendService.getAllQuestions().subscribe({
+          next: ({data}) => {
+            if (!data) return;
+            this.questions.set(data);
 
-        this.element.nativeElement.querySelector('.form--1').addEventListener('input', (e: Event) => {
-          const target = e.target as unknown as HTMLInputElement;
-          const question: HTMLElement | null = target.closest(".questions");
-          if (question) this.provider.setLocalStorage(question.dataset["questionId"]!, target.value);
-          //this.#progress.style.width = `${this.provider.getProgress()}%`;
+            const questionsBySection = data.filter(q => this.section === q.section)
+            this._createForm(questionsBySection, 1);
+            this._getLocalStorage();
+    
+            this.element.nativeElement.querySelector('.form--1').addEventListener('input', (e: Event) => {
+              const target = e.target as unknown as HTMLInputElement;
+              const question: HTMLElement | null = target.closest(".questions");
+              if (question) this.provider.setLocalStorage(question.dataset["questionId"]!, target.value);
+              //this.#progress.style.width = `${this.provider.getProgress()}%`;
+            })
+        //this._getLocalStorage()
+          },
+          error: (error) => {
+            console.error(error)
+
+            if (403 === error?.status) {
+                sessionStorage.removeItem('TOKEN');
+                this.provider.setLogging(false);
+            }
+          }
         })
-    //this._getLocalStorage()
 
     this.provider.Progress$.subscribe(progress => {
       if (progress === 0) this.element.nativeElement.querySelector('.form--1').reset()
@@ -66,7 +81,7 @@ export class RenderFormDirective {
         label.innerHTML = `
       <input type="radio" name="Q${q.id}" value=${
           index + 1
-        } class="radioinput radioinput__section--${id}" data-id="${q.id}-${
+        } class="radioinput radioinput__section--${id}" data-value="${op.id}" data-question="${q.id}" data-id="${q.id}-${
           index + 1
         }">${op.text}
       `;
@@ -79,8 +94,8 @@ export class RenderFormDirective {
   };
 
   _getLocalStorage() {
-    //console.log(this.element.nativeElement)
     this.provider.getLocalStorage()
+
     if (!this.provider.answers()) return;
     for (const prop in this.provider.answers()) {
       if (this.provider.answers().hasOwnProperty(prop)) {

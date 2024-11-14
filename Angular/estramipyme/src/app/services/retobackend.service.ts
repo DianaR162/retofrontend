@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 
 const USER_REGISTER_URL = '/user'
 const QUESTION_URL = '/question'
+const ANSWER_URL = '/answer'
 
 export interface IUserRequestDto {
   name: string,
@@ -43,6 +44,11 @@ export interface IQuestion {
   options: IOption[]
 }
 
+export interface IAnswerRequestDto {
+  idQuestion: number,
+  idOption: number
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -60,8 +66,18 @@ export class RetobackendService {
   }
 
   getAllQuestions(): Observable<IResponseDto<[IQuestion]>> {
-    return this.http.get<IResponseDto<[IQuestion]>>(environment.apiUrl + QUESTION_URL + '/all', { headers: {
-      Authorization: `Bearer ${this.token}`
-    } })
+    return this.http.get<IResponseDto<[IQuestion]>>(environment.apiUrl + QUESTION_URL + '/all', {
+      headers: {
+        Authorization: `Bearer ${this.token}`
+      }
+    })
+  }
+
+  saveAnswers(payload: IAnswerRequestDto[]): Observable<IResponseDto<boolean>> {
+    return this.http.post<IResponseDto<boolean>>(environment.apiUrl + ANSWER_URL, payload, {
+      headers: {
+        Authorization: `Bearer ${this.token}`
+      }
+    })
   }
 }

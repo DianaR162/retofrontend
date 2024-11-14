@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {computed, inject, Injectable, signal} from '@angular/core';
 import {DataProcService} from '@services/data-proc.service';
 import {BehaviorSubject} from 'rxjs';
 import { RetobackendService } from './retobackend.service';
@@ -21,8 +21,7 @@ export interface Circle {
 export class GlobalProviderService {
   answers = signal<Answer>({});
   private progress = new BehaviorSubject<number>(0);
-  numberOfQuestions = 51;
-  private dataProc = inject(DataProcService);
+  numberOfQuestions = signal<number>(51);
 
   private RadarData: BehaviorSubject<number[]> = new BehaviorSubject([
     1, 2, 3, 4, 5,
@@ -46,14 +45,25 @@ export class GlobalProviderService {
   circuloComo!: string[];
   circuloPorQue!: string[];
   scores = computed(() => {
-    console.log('compute scores');
-    console.log(this.answers());
-    //console.log(this.cliente)
     return this.getScores();
   });
 
   constructor(private retobackendService: RetobackendService) {
     this.setLogging(Boolean(sessionStorage.getItem('TOKEN')))
+
+    this.retobackendService.getAllQuestions().subscribe({
+      next: ({ data }) => {
+        this.numberOfQuestions.update(() => data?.length || 51)
+      },
+      error: (error) => {
+        console.error(error)
+
+        if (403 === error?.status) {
+          this.setLogging(false);
+          sessionStorage.removeItem('TOKEN');
+        }
+      }
+    })
   }
 
   setLocalStorage(id: number | string, value: string) {
@@ -72,33 +82,39 @@ export class GlobalProviderService {
 
   getLocalStorage() {
     const storedDataString = localStorage.getItem('estramipyme');
+
     if (storedDataString == null) return;
     const data: object = JSON.parse(storedDataString);
+
     if (!data) return;
     this.answers.update(() => {
       return {...this.answers(), ...data};
     });
+
     this.getProgress();
     this.getRadarData();
     this.getCircleData();
   }
 
   getProgress() {
+    const numberOfQuestions = this.numberOfQuestions();
+    const answersCount = Object.keys(this.answers()).length;
+
     if (!this.answers())
       this.progress.next(
         Math.ceil(
-          (Object.keys(this.answers()).length / this.numberOfQuestions) * 100
+          (answersCount / numberOfQuestions) * 100
         )
       );
     if (!this.numberOfQuestions)
       this.progress.next(
         Math.ceil(
-          (Object.keys(this.answers()).length / this.numberOfQuestions) * 100
+          (answersCount / numberOfQuestions) * 100
         )
       );
     this.progress.next(
       Math.ceil(
-        (Object.keys(this.answers()).length / this.numberOfQuestions) * 100
+        (answersCount / numberOfQuestions) * 100
       )
     );
   }
@@ -153,21 +169,16 @@ export class GlobalProviderService {
     Object.entries(this.answers()).forEach(([key, value]) => {
       //console.log(key, value);
 
-      if (this.circuloQue.includes(key)) {
+      if (this.circuloQue?.includes(key)) {
         queAcc += Number(value);
       }
-      if (this.circuloComo.includes(key)) {
+      if (this.circuloComo?.includes(key)) {
         comoAcc += Number(value);
       }
-      if (this.circuloPorQue.includes(key)) {
+      if (this.circuloPorQue?.includes(key)) {
         porQueAcc += Number(value);
       }
     });
-
-    console.log('conteo');
-    console.log(this.circuloQue);
-    console.log(porQueAcc);
-    console.log(comoAcc);
 
     return {
       what: [(queAcc / (total * 4)) * 100, 100 - (queAcc / (total * 4)) * 100],
